@@ -1,0 +1,17 @@
+services:
+  collage-api:
+    build: .
+    container_name: collage-api
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://collage_user:collage_secure_2024@host.docker.internal:5432/collage_db
+      - STORAGE_PATH=/var/www/collage
+      - BASE_URL=https://collage.paraslace.in
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+    volumes:
+      - /var/www/collage:/var/www/collage
+    ports:
+      - "8001:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
