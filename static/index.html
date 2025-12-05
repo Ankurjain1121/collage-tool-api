@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collage Tool - Test Interface</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .layout-preview {
+            background: #2a2a4a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .layout-preview h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .layout-diagram {
+            display: inline-block;
+            border: 3px solid #000;
+            background: #fff;
+            width: 384px;
+            height: 216px;
+            position: relative;
+        }
+
+        .layout-border {
+            position: absolute;
+            background: #000;
+        }
+
+        .layout-border.top { top: 0; left: 0; right: 0; height: 16px; }
+        .layout-border.bottom { bottom: 0; left: 0; right: 0; height: 16px; }
+        .layout-border.left { top: 0; bottom: 0; left: 0; width: 16px; }
+        .layout-border.right { top: 0; bottom: 0; right: 0; width: 16px; }
+        .layout-border.divider { top: 16px; bottom: 16px; left: 102px; width: 8px; }
+
+        .layout-box {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .layout-box.img1 {
+            top: 16px;
+            left: 16px;
+            width: 86px;
+            height: 184px;
+            background: #e8d4f0;
+        }
+
+        .layout-box.img2 {
+            top: 16px;
+            left: 110px;
+            width: 258px;
+            height: 184px;
+            background: #d4e8f0;
+        }
+
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-card {
+            background: #2a2a4a;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .upload-card h3 {
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .upload-card p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed #444;
+            border-radius: 8px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area.has-image {
+            padding: 10px;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-area svg {
+            width: 48px;
+            height: 48px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-area span {
+            color: #888;
+        }
+
+        .upload-area img {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 4px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+
+        .status-badge.pending {
+            background: #444;
+            color: #888;
+        }
+
+        .status-badge.uploaded {
+            background: #2d5a3d;
+            color: #7bed9f;
+        }
+
+        .actions {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            background: #2a2a4a;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+
+        .result-section h3 {
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .result-section img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-actions {
+            margin-top: 20px;
+        }
+
+        .result-actions a {
+            display: inline-block;
+            background: #2d5a3d;
+            color: #7bed9f;
+            padding: 10px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .loader {
+            display: none;
+            margin: 20px auto;
+        }
+
+        .loader.visible {
+            display: block;
+        }
+
+        .loader svg {
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-msg {
+            background: #5a2d2d;
+            color: #ed7b7b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        .session-info {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .session-info code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Collage Tool</h1>
+        <p class="subtitle">Upload two images to create a product collage</p>
+
+        <div class="layout-preview">
+            <h3>Output Layout (1920x1080)</h3>
+            <div class="layout-diagram">
+                <div class="layout-border top"></div>
+                <div class="layout-border bottom"></div>
+                <div class="layout-border left"></div>
+                <div class="layout-border right"></div>
+                <div class="layout-border divider"></div>
+                <div class="layout-box img1">Image 1<br>430x920<br>(BG removed)</div>
+                <div class="layout-box img2">Image 2<br>1290x920<br>(As-is)</div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-card">
+                <h3>Image 1 - Product</h3>
+                <p>Product closeup (background will be removed)</p>
+                <div class="upload-area" id="upload1" onclick="document.getElementById('file1').click()">
+                    <input type="file" id="file1" accept="image/*" onchange="handleFileSelect(1, this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Click to upload</span>
+                </div>
+                <span class="status-badge pending" id="status1">Not uploaded</span>
+            </div>
+
+            <div class="upload-card">
+                <h3>Image 2 - Variants</h3>
+                <p>Color variants or additional product view</p>
+                <div class="upload-area" id="upload2" onclick="document.getElementById('file2').click()">
+                    <input type="file" id="file2" accept="image/*" onchange="handleFileSelect(2, this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Click to upload</span>
+                </div>
+                <span class="status-badge pending" id="status2">Not uploaded</span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="processBtn" onclick="processCollage()" disabled>
+                Generate Collage
+            </button>
+        </div>
+
+        <div class="loader" id="loader">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <p>Processing... This may take 15-30 seconds</p>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="result-section" id="resultSection">
+            <h3>Generated Collage</h3>
+            <img id="resultImage" src="" alt="Generated Collage">
+            <div class="result-actions">
+                <a id="downloadLink" href="" download="collage.png">Download PNG</a>
+                <a href="#" onclick="resetForm(); return false;">Create Another</a>
+            </div>
+        </div>
+
+        <div class="session-info" id="sessionInfo" style="display: none;">
+            <strong>Debug Info:</strong><br>
+            Session ID: <code id="sessionId">-</code><br>
+            Status: <code id="sessionStatus">-</code>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let sessionId = null;
+        let userId = null;  // Track the user ID used to create session
+        let image1Uploaded = false;
+        let image2Uploaded = false;
+
+        async function createSession() {
+            // Create a unique user ID and store it
+            userId = 'web_user_' + Date.now();
+
+            const response = await fetch(`${API_BASE}/api/collage/session`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    slack_user_id: userId,
+                    slack_channel_id: 'web_channel'
+                })
+            });
+            const data = await response.json();
+            sessionId = data.id;
+            document.getElementById('sessionId').textContent = sessionId;
+            document.getElementById('sessionStatus').textContent = data.status;
+            document.getElementById('sessionInfo').style.display = 'block';
+            return data;
+        }
+
+        async function handleFileSelect(imageNum, input) {
+            if (!input.files || !input.files[0]) return;
+
+            const file = input.files[0];
+            const uploadArea = document.getElementById(`upload${imageNum}`);
+            const statusBadge = document.getElementById(`status${imageNum}`);
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadArea.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                uploadArea.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+
+            // Create session if needed
+            if (!sessionId) {
+                await createSession();
+            }
+
+            // Upload file
+            statusBadge.textContent = 'Uploading...';
+            statusBadge.className = 'status-badge pending';
+
+            const formData = new FormData();
+            formData.append('slack_user_id', userId);  // Use the same userId from session creation
+            formData.append('image_num', imageNum);
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/collage/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    statusBadge.textContent = 'Uploaded';
+                    statusBadge.className = 'status-badge uploaded';
+
+                    if (imageNum === 1) image1Uploaded = true;
+                    if (imageNum === 2) image2Uploaded = true;
+
+                    updateProcessButton();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Upload failed');
+                }
+            } catch (error) {
+                statusBadge.textContent = 'Failed: ' + error.message;
+                statusBadge.className = 'status-badge pending';
+            }
+        }
+
+        function updateProcessButton() {
+            const btn = document.getElementById('processBtn');
+            btn.disabled = !(image1Uploaded && image2Uploaded);
+        }
+
+        async function processCollage() {
+            if (!sessionId) return;
+
+            const btn = document.getElementById('processBtn');
+            const loader = document.getElementById('loader');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultSection = document.getElementById('resultSection');
+
+            btn.disabled = true;
+            loader.classList.add('visible');
+            errorMsg.classList.remove('visible');
+            resultSection.classList.remove('visible');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/collage/process`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.output_url) {
+                    document.getElementById('resultImage').src = data.output_url;
+                    document.getElementById('downloadLink').href = data.output_url;
+                    resultSection.classList.add('visible');
+                    document.getElementById('sessionStatus').textContent = 'completed';
+
+                    // Auto-download the collage
+                    const link = document.createElement('a');
+                    link.href = data.output_url;
+                    link.download = `collage_${Date.now()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    throw new Error(data.error || 'Processing failed');
+                }
+            } catch (error) {
+                errorMsg.textContent = 'Error: ' + error.message;
+                errorMsg.classList.add('visible');
+            } finally {
+                loader.classList.remove('visible');
+                btn.disabled = false;
+            }
+        }
+
+        function resetForm() {
+            sessionId = null;
+            userId = null;
+            image1Uploaded = false;
+            image2Uploaded = false;
+
+            // Reset upload areas
+            ['upload1', 'upload2'].forEach((id, i) => {
+                const area = document.getElementById(id);
+                area.innerHTML = `
+                    <input type="file" id="file${i+1}" accept="image/*" onchange="handleFileSelect(${i+1}, this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Click to upload</span>
+                `;
+                area.classList.remove('has-image');
+            });
+
+            // Reset status badges
+            document.getElementById('status1').textContent = 'Not uploaded';
+            document.getElementById('status1').className = 'status-badge pending';
+            document.getElementById('status2').textContent = 'Not uploaded';
+            document.getElementById('status2').className = 'status-badge pending';
+
+            // Reset other elements
+            document.getElementById('processBtn').disabled = true;
+            document.getElementById('resultSection').classList.remove('visible');
+            document.getElementById('errorMsg').classList.remove('visible');
+            document.getElementById('sessionInfo').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

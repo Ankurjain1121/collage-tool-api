@@ -2,7 +2,9 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+load_dotenv(PROJECT_ROOT / ".env")
 
 
 class Settings:
@@ -37,6 +39,11 @@ class Settings:
     CANVAS_HEIGHT: int = 1080
     IMAGE1_WIDTH_RATIO: float = 0.25  # 25% for product image
     IMAGE2_WIDTH_RATIO: float = 0.75  # 75% for color variants
+
+    # Border settings
+    BORDER_THICKNESS: int = 80              # 80px on all edges
+    DIVIDER_THICKNESS: int = 40             # 40px vertical divider
+    BORDER_COLOR: tuple = (0, 0, 0)         # Solid black #000000
 
 
 settings = Settings()

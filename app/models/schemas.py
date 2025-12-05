@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from uuid import UUID
 from enum import Enum
 
 
@@ -28,7 +27,7 @@ class SessionUpdate(BaseModel):
 
 
 class SessionResponse(BaseModel):
-    id: UUID
+    id: str
     slack_user_id: str
     slack_channel_id: str
     slack_thread_ts: Optional[str]
@@ -47,11 +46,11 @@ class SessionResponse(BaseModel):
 class UploadResponse(BaseModel):
     success: bool
     path: str
-    session_id: UUID
+    session_id: str
 
 
 class ProcessRequest(BaseModel):
-    session_id: UUID
+    session_id: str
 
 
 class ProcessResponse(BaseModel):

@@ -1,17 +1,24 @@
+import replicate
+import httpx
+import base64
+import os
 from PIL import Image
-from rembg import remove
 from colorthief import ColorThief
 from io import BytesIO
 import colorsys
+import asyncio
+from app.config import settings
+
+# Set the Replicate API token from our config
+os.environ["REPLICATE_API_TOKEN"] = settings.REPLICATE_API_TOKEN
 
 
 class BackgroundService:
     """Handle background removal and color operations."""
 
-    @staticmethod
-    def remove_background(image_bytes: bytes) -> Image.Image:
+    async def remove_background(self, image_bytes: bytes) -> Image.Image:
         """
-        Remove background from image using rembg.
+        Remove background from image using Replicate lucataco/remove-bg.
 
         Args:
             image_bytes: Input image bytes
@@ -19,8 +26,26 @@ class BackgroundService:
         Returns:
             PIL Image with transparent background (RGBA)
         """
-        output_bytes = remove(image_bytes)
-        return Image.open(BytesIO(output_bytes)).convert("RGBA")
+        # Convert to base64 data URI
+        b64 = base64.b64encode(image_bytes).decode("utf-8")
+        data_uri = f"data:image/png;base64,{b64}"
+
+        # Run Replicate model (sync API, run in thread pool)
+        loop = asyncio.get_event_loop()
+        output_url = await loop.run_in_executor(
+            None,
+            lambda: replicate.run(
+                "lucataco/remove-bg:95fcc2a26d3899cd6c2691c900465aaeff466285a65c14638cc5f36f34befaf1",
+                input={"image": data_uri}
+            )
+        )
+
+        # Download result
+        async with httpx.AsyncClient() as client:
+            response = await client.get(output_url)
+            response.raise_for_status()
+
+        return Image.open(BytesIO(response.content)).convert("RGBA")
 
     @staticmethod
     def get_dominant_color(image_path: str) -> tuple[int, int, int]:
@@ -35,6 +60,40 @@ class BackgroundService:
         """
         color_thief = ColorThief(image_path)
         return color_thief.get_color(quality=1)
+
+    @staticmethod
+    def get_contrast_background(rgb: tuple[int, int, int]) -> tuple[int, int, int]:
+        """
+        Calculate a high-contrast background color for the product.
+
+        Strategy: Create a light, desaturated version that contrasts
+        with the product while not being distracting.
+
+        - Dark products get light backgrounds
+        - Light products get slightly darker backgrounds
+        - Low saturation for non-distracting effect
+
+        Args:
+            rgb: RGB tuple of dominant color
+
+        Returns:
+            RGB tuple for contrast background
+        """
+        r, g, b = [x / 255.0 for x in rgb]
+        h, l, s = colorsys.rgb_to_hls(r, g, b)
+
+        # If product is dark, use light background
+        # If product is light, use slightly darker background
+        if l < 0.5:
+            new_l = 0.92  # Light background for dark products
+        else:
+            new_l = 0.85  # Slightly less light for light products
+
+        # Reduce saturation for softer, non-distracting background
+        new_s = min(0.15, s * 0.3)
+
+        r, g, b = colorsys.hls_to_rgb(h, new_l, new_s)
+        return (int(r * 255), int(g * 255), int(b * 255))
 
     @staticmethod
     def get_complementary_color(rgb: tuple[int, int, int]) -> tuple[int, int, int]:

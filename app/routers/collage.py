@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
-from uuid import UUID
 from typing import Optional
 
 from app.db.database import get_db
@@ -64,7 +63,7 @@ def get_session(slack_user_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/session/id/{session_id}", response_model=SessionResponse)
-def get_session_by_id(session_id: UUID, db: Session = Depends(get_db)):
+def get_session_by_id(session_id: str, db: Session = Depends(get_db)):
     """Get a session by its ID."""
     session = db.query(CollageSession).filter(
         CollageSession.id == session_id
@@ -88,11 +87,13 @@ async def upload_image(
 
     - image_num=1: Product closeup
     - image_num=2: Color variants
+
+    Images can be uploaded in any order.
     """
     if image_num not in [1, 2]:
         raise HTTPException(status_code=400, detail="image_num must be 1 or 2")
 
-    # Get active session
+    # Get active session (allow any status that isn't completed/failed)
     session = db.query(CollageSession).filter(
         and_(
             CollageSession.slack_user_id == slack_user_id,
@@ -103,23 +104,20 @@ async def upload_image(
     if not session:
         raise HTTPException(status_code=404, detail="No active session found")
 
-    # Validate state
-    if image_num == 1 and session.status != SessionStatus.AWAITING_IMAGE1.value:
-        raise HTTPException(status_code=400, detail="Session not awaiting image 1")
-    if image_num == 2 and session.status != SessionStatus.AWAITING_IMAGE2.value:
-        raise HTTPException(status_code=400, detail="Session not awaiting image 2")
-
-    # Save file
+    # Save file (allow uploading in any order)
     storage = StorageService()
     relative_path = await storage.save_upload(file, session.id, image_num)
 
     # Update session
     if image_num == 1:
         session.image1_path = relative_path
-        session.status = SessionStatus.AWAITING_IMAGE2.value
+        # If image2 already uploaded, stay at awaiting_image2, else move to it
+        if session.status == SessionStatus.AWAITING_IMAGE1.value:
+            session.status = SessionStatus.AWAITING_IMAGE2.value
     else:
         session.image2_path = relative_path
-        # Don't change status yet - wait for process call
+        # If image1 not uploaded yet, keep status as awaiting_image1
+        # Otherwise keep as awaiting_image2 (ready for processing)
 
     db.commit()
     db.refresh(session)
@@ -142,7 +140,7 @@ async def process_collage(
     Both images must be uploaded before calling this.
     """
     session = db.query(CollageSession).filter(
-        CollageSession.id == request.session_id
+        CollageSession.id == str(request.session_id)
     ).first()
 
     if not session:
@@ -156,9 +154,9 @@ async def process_collage(
     db.commit()
 
     try:
-        # Create collage
+        # Create collage (async - uses Replicate API for BG removal)
         compositor = CompositorService()
-        output_bytes = compositor.create_collage(
+        output_bytes = await compositor.create_collage(
             session.image1_path,
             session.image2_path
         )
@@ -183,7 +181,7 @@ async def process_collage(
 
 
 @router.delete("/session/{session_id}")
-def cancel_session(session_id: UUID, db: Session = Depends(get_db)):
+def cancel_session(session_id: str, db: Session = Depends(get_db)):
     """Cancel/delete a session."""
     session = db.query(CollageSession).filter(
         CollageSession.id == session_id

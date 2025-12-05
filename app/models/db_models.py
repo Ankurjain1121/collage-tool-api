@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, Text, DateTime, func
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from app.db.database import Base
 
@@ -7,7 +6,7 @@ from app.db.database import Base
 class CollageSession(Base):
     __tablename__ = "collage_sessions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     slack_user_id = Column(Text, nullable=False)
     slack_channel_id = Column(Text, nullable=False)
     slack_thread_ts = Column(Text, nullable=True)
