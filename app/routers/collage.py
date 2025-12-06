@@ -158,7 +158,8 @@ async def process_collage(
         compositor = CompositorService()
         output_bytes = await compositor.create_collage(
             session.image1_path,
-            session.image2_path
+            session.image2_path,
+            background_name=request.background_name
         )
 
         # Save output
@@ -202,3 +203,15 @@ def list_borders():
     storage = StorageService()
     borders = storage.list_borders()
     return {"borders": borders}
+
+
+@router.get("/backgrounds")
+def list_backgrounds():
+    """List available base backgrounds."""
+    return {
+        "backgrounds": settings.BASE_BACKGROUNDS,
+        "overlays": [
+            {"rgb": rgb, "name": name}
+            for rgb, name in settings.SOLID_OVERLAYS
+        ]
+    }

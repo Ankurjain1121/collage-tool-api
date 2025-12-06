@@ -55,48 +55,136 @@
 
         .layout-diagram {
             display: inline-block;
-            border: 3px solid #000;
-            background: #fff;
+            border: 3px solid #98FF98;
+            background: linear-gradient(135deg, #98FF98 0%, #B0E0E6 100%);
             width: 384px;
             height: 216px;
             position: relative;
+            border-radius: 4px;
         }
 
         .layout-border {
             position: absolute;
-            background: #000;
+            background: transparent;
         }
-
-        .layout-border.top { top: 0; left: 0; right: 0; height: 16px; }
-        .layout-border.bottom { bottom: 0; left: 0; right: 0; height: 16px; }
-        .layout-border.left { top: 0; bottom: 0; left: 0; width: 16px; }
-        .layout-border.right { top: 0; bottom: 0; right: 0; width: 16px; }
-        .layout-border.divider { top: 16px; bottom: 16px; left: 102px; width: 8px; }
 
         .layout-box {
             position: absolute;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #333;
             font-weight: 500;
+            text-align: center;
+            border-radius: 2px;
         }
 
         .layout-box.img1 {
             top: 16px;
             left: 16px;
-            width: 86px;
+            width: 80px;
             height: 184px;
-            background: #e8d4f0;
+            background: #87CEEB;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .layout-box.img2 {
             top: 16px;
-            left: 110px;
-            width: 258px;
+            left: 102px;
+            width: 266px;
             height: 184px;
-            background: #d4e8f0;
+            background: rgba(255,255,255,0.3);
+            border: 1px dashed #666;
+        }
+
+        .layout-gap {
+            position: absolute;
+            top: 16px;
+            left: 96px;
+            width: 6px;
+            height: 184px;
+            background: transparent;
+        }
+
+        .layout-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .bg-selector {
+            background: #2a2a4a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bg-selector h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .bg-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .bg-option {
+            width: 80px;
+            height: 50px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+        }
+
+        .bg-option.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .bg-option.random {
+            background: linear-gradient(135deg, #FFB6C1, #98FF98, #B0E0E6, #E6E6FA, #FFFDD0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .bg-option span {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #888;
+            white-space: nowrap;
         }
 
         .upload-section {
@@ -258,6 +346,7 @@
         .loader {
             display: none;
             margin: 20px auto;
+            text-align: center;
         }
 
         .loader.visible {
@@ -302,30 +391,133 @@
             border-radius: 4px;
             font-family: monospace;
         }
+
+        .feature-list {
+            background: #2a2a4a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-list h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Collage Tool</h1>
-        <p class="subtitle">Upload two images to create a product collage</p>
+        <p class="subtitle">Upload two images to create a product collage with pastel backgrounds</p>
+
+        <div class="feature-list">
+            <h3>Features</h3>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">1</div>
+                    <span>Pastel backgrounds with geometric patterns</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">2</div>
+                    <span>Auto-contrast overlay selection for products</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">3</div>
+                    <span>Auto-rotate Image 2 for better fit</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">4</div>
+                    <span>50px border, 15px gap layout</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">5</div>
+                    <span>Image enhancement (sharpening, contrast, saturation)</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">6</div>
+                    <span>High-quality BICUBIC resampling</span>
+                </div>
+            </div>
+        </div>
 
         <div class="layout-preview">
             <h3>Output Layout (1920x1080)</h3>
             <div class="layout-diagram">
-                <div class="layout-border top"></div>
-                <div class="layout-border bottom"></div>
-                <div class="layout-border left"></div>
-                <div class="layout-border right"></div>
-                <div class="layout-border divider"></div>
-                <div class="layout-box img1">Image 1<br>430x920<br>(BG removed)</div>
-                <div class="layout-box img2">Image 2<br>1290x920<br>(As-is)</div>
+                <div class="layout-box img1">Product<br>(BG removed)<br>Solid overlay</div>
+                <div class="layout-gap"></div>
+                <div class="layout-box img2">Image 2<br>(Auto-rotated)<br>On base BG</div>
+            </div>
+            <div class="layout-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #98FF98, #B0E0E6);"></div>
+                    <span>Pastel Base</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #87CEEB;"></div>
+                    <span>Solid Overlay</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #444; border: 1px dashed #888;"></div>
+                    <span>15px Gap</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-selector">
+            <h3>Select Background</h3>
+            <div class="bg-options" id="bgOptions">
+                <div class="bg-option random selected" data-bg="" onclick="selectBackground(this, '')">
+                    Random
+                    <span>Auto</span>
+                </div>
+                <div class="bg-option" data-bg="base_light_pink.png" style="background: #FFB6C1;" onclick="selectBackground(this, 'base_light_pink.png')">
+                    <span>Pink</span>
+                </div>
+                <div class="bg-option" data-bg="base_mint_green.png" style="background: #98FF98;" onclick="selectBackground(this, 'base_mint_green.png')">
+                    <span>Mint</span>
+                </div>
+                <div class="bg-option" data-bg="base_powder_blue.png" style="background: #B0E0E6;" onclick="selectBackground(this, 'base_powder_blue.png')">
+                    <span>Blue</span>
+                </div>
+                <div class="bg-option" data-bg="base_lavender.png" style="background: #E6E6FA;" onclick="selectBackground(this, 'base_lavender.png')">
+                    <span>Lavender</span>
+                </div>
+                <div class="bg-option" data-bg="base_cream.png" style="background: #FFFDD0;" onclick="selectBackground(this, 'base_cream.png')">
+                    <span>Cream</span>
+                </div>
             </div>
         </div>
 
         <div class="upload-section">
             <div class="upload-card">
                 <h3>Image 1 - Product</h3>
-                <p>Product closeup (background will be removed)</p>
+                <p>Product closeup (background will be removed, placed on solid overlay)</p>
                 <div class="upload-area" id="upload1" onclick="document.getElementById('file1').click()">
                     <input type="file" id="file1" accept="image/*" onchange="handleFileSelect(1, this)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -338,7 +530,7 @@
 
             <div class="upload-card">
                 <h3>Image 2 - Variants</h3>
-                <p>Color variants or additional product view</p>
+                <p>Color variants (will auto-rotate if needed for better fit)</p>
                 <div class="upload-area" id="upload2" onclick="document.getElementById('file2').click()">
                     <input type="file" id="file2" accept="image/*" onchange="handleFileSelect(2, this)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -377,19 +569,29 @@
         <div class="session-info" id="sessionInfo" style="display: none;">
             <strong>Debug Info:</strong><br>
             Session ID: <code id="sessionId">-</code><br>
-            Status: <code id="sessionStatus">-</code>
+            Status: <code id="sessionStatus">-</code><br>
+            Background: <code id="selectedBg">Random</code>
         </div>
     </div>
 
     <script>
         const API_BASE = window.location.origin;
         let sessionId = null;
-        let userId = null;  // Track the user ID used to create session
+        let userId = null;
         let image1Uploaded = false;
         let image2Uploaded = false;
+        let selectedBackground = '';  // Empty = random
+
+        function selectBackground(element, bgName) {
+            // Remove selected from all
+            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
+            // Add selected to clicked
+            element.classList.add('selected');
+            selectedBackground = bgName;
+            document.getElementById('selectedBg').textContent = bgName || 'Random';
+        }
 
         async function createSession() {
-            // Create a unique user ID and store it
             userId = 'web_user_' + Date.now();
 
             const response = await fetch(`${API_BASE}/api/collage/session`, {
@@ -433,7 +635,7 @@
             statusBadge.className = 'status-badge pending';
 
             const formData = new FormData();
-            formData.append('slack_user_id', userId);  // Use the same userId from session creation
+            formData.append('slack_user_id', userId);
             formData.append('image_num', imageNum);
             formData.append('file', file);
 
@@ -480,10 +682,15 @@
             resultSection.classList.remove('visible');
 
             try {
+                const requestBody = { session_id: sessionId };
+                if (selectedBackground) {
+                    requestBody.background_name = selectedBackground;
+                }
+
                 const response = await fetch(`${API_BASE}/api/collage/process`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: sessionId })
+                    body: JSON.stringify(requestBody)
                 });
 
                 const data = await response.json();
@@ -493,14 +700,6 @@
                     document.getElementById('downloadLink').href = data.output_url;
                     resultSection.classList.add('visible');
                     document.getElementById('sessionStatus').textContent = 'completed';
-
-                    // Auto-download the collage
-                    const link = document.createElement('a');
-                    link.href = data.output_url;
-                    link.download = `collage_${Date.now()}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
                 } else {
                     throw new Error(data.error || 'Processing failed');
                 }

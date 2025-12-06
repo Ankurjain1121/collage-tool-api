@@ -51,6 +51,7 @@ class UploadResponse(BaseModel):
 
 class ProcessRequest(BaseModel):
     session_id: str
+    background_name: Optional[str] = None  # Optional specific background
 
 
 class ProcessResponse(BaseModel):

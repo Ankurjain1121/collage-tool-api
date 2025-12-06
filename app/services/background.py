@@ -180,3 +180,109 @@ class BackgroundService:
         background.paste(fg_image, offset, fg_image if fg_image.mode == "RGBA" else None)
 
         return background
+
+    @staticmethod
+    def get_dominant_color_from_bytes(image_bytes: bytes) -> tuple[int, int, int]:
+        """
+        Get the dominant color from image bytes.
+
+        Args:
+            image_bytes: Image file bytes
+
+        Returns:
+            RGB tuple of dominant color
+        """
+        color_thief = ColorThief(BytesIO(image_bytes))
+        return color_thief.get_color(quality=1)
+
+    @staticmethod
+    def get_dominant_color_from_rgba(
+        image: Image.Image,
+        alpha_threshold: int = 128
+    ) -> tuple[int, int, int]:
+        """
+        Extract dominant color from RGBA image, ignoring transparent pixels.
+
+        This method analyzes only the non-transparent (product) pixels,
+        giving accurate color extraction after background removal.
+
+        Args:
+            image: PIL RGBA Image (background removed)
+            alpha_threshold: Minimum alpha value to consider pixel (0-255)
+
+        Returns:
+            RGB tuple of dominant color from non-transparent pixels
+        """
+        # Ensure RGBA mode
+        if image.mode != "RGBA":
+            image = image.convert("RGBA")
+
+        # Get all pixel data
+        pixels = list(image.getdata())
+
+        # Filter to only non-transparent pixels
+        opaque_pixels = [
+            (r, g, b) for r, g, b, a in pixels
+            if a >= alpha_threshold
+        ]
+
+        if not opaque_pixels:
+            # Fallback if no opaque pixels found
+            return (128, 128, 128)  # Neutral gray
+
+        # Create a temporary image from opaque pixels for quantization
+        temp_size = int(len(opaque_pixels) ** 0.5) + 1
+        temp_img = Image.new("RGB", (temp_size, temp_size), (255, 255, 255))
+        temp_pixels = temp_img.load()
+
+        # Fill temporary image with opaque pixels
+        for i, (r, g, b) in enumerate(opaque_pixels):
+            if i >= temp_size * temp_size:
+                break
+            x = i % temp_size
+            y = i // temp_size
+            temp_pixels[x, y] = (r, g, b)
+
+        # Quantize to reduce to dominant colors
+        quantized = temp_img.quantize(colors=5, method=Image.Quantize.MEDIANCUT)
+
+        # Get the palette and find most common color
+        palette = quantized.getpalette()
+        color_counts = {}
+
+        for pixel in quantized.getdata():
+            idx = pixel * 3
+            color = (palette[idx], palette[idx + 1], palette[idx + 2])
+            color_counts[color] = color_counts.get(color, 0) + 1
+
+        # Return most frequent color
+        dominant = max(color_counts.items(), key=lambda x: x[1])[0]
+        return dominant
+
+    @staticmethod
+    def select_overlay_color(product_rgb: tuple[int, int, int]) -> tuple[tuple[int, int, int], str]:
+        """
+        Select a solid overlay color based on product lightness (contrast logic).
+
+        Light product → Dark overlay (Bottle Green)
+        Dark product → Light overlay (Sky Blue)
+
+        Args:
+            product_rgb: RGB tuple of product's dominant color
+
+        Returns:
+            Tuple of (RGB color tuple, color name)
+        """
+        # Calculate lightness using HLS
+        r, g, b = [x / 255.0 for x in product_rgb]
+        _, lightness, _ = colorsys.rgb_to_hls(r, g, b)
+
+        # Get overlay options from settings
+        overlays = settings.SOLID_OVERLAYS
+
+        if lightness > 0.5:
+            # Light product → Dark overlay (last in list)
+            return overlays[-1]
+        else:
+            # Dark product → Light overlay (first in list)
+            return overlays[0]

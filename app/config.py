@@ -41,9 +41,27 @@ class Settings:
     IMAGE2_WIDTH_RATIO: float = 0.75  # 75% for color variants
 
     # Border settings
-    BORDER_THICKNESS: int = 80              # 80px on all edges
-    DIVIDER_THICKNESS: int = 40             # 40px vertical divider
-    BORDER_COLOR: tuple = (0, 0, 0)         # Solid black #000000
+    BORDER_THICKNESS: int = 25              # 25px on all edges (reduced from 50)
+    GAP_THICKNESS: int = 10                 # 10px gap between boxes (reduced from 15)
+
+    # Base backgrounds (pastel with geometric patterns)
+    BACKGROUNDS_PATH: Path = PROJECT_ROOT / "assets" / "backgrounds"
+    BASE_BACKGROUNDS: list = [
+        "base_light_pink.png",
+        "base_mint_green.png",
+        "base_powder_blue.png",
+        "base_lavender.png",
+        "base_cream.png",
+    ]
+
+    # Solid color overlays for product box (light to dark)
+    SOLID_OVERLAYS: list = [
+        ((135, 206, 235), "sky_blue"),      # Sky Blue #87CEEB - lightest
+        ((255, 248, 220), "cream"),         # Cream #FFF8DC
+        ((210, 180, 140), "tan"),           # Tan #D2B48C
+        ((128, 128, 0), "olive"),           # Olive #808000
+        ((0, 106, 78), "bottle_green"),     # Bottle Green #006A4E - darkest
+    ]
 
 
 settings = Settings()
