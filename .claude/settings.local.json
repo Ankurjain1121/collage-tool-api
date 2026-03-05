@@ -4,7 +4,12 @@
       "mcp__MCP_DOCKER__sequentialthinking",
       "mcp__MCP_DOCKER__web_search_exa",
       "mcp__MCP_DOCKER__fetch",
-      "Bash(ssh vps-ankur:*)"
+      "Bash(ssh vps-ankur:*)",
+      "mcp__mcpjungle__sequential-thinking__sequentialthinking",
+      "mcp__mcpjungle__kenyouthink__think",
+      "Bash(file:*)",
+      "Bash(xargs:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
